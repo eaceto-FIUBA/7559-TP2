@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11 -std=c++11    CMakeFiles/picoClient.dir/picoClient.cpp.o  -o bin/picoClient -rdynamic ../shared/libshared_lib.a 

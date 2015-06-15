@@ -1,0 +1,2 @@
+/usr/bin/ar cr libshared_lib.a  CMakeFiles/shared_lib.dir/src/person.cpp.o
+/usr/bin/ranlib libshared_lib.a

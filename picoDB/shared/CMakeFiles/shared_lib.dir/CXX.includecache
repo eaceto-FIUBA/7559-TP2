@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/kimi/FIUBA/7559-TP2/picoDB/shared/inc/person.h
+
+/home/kimi/FIUBA/7559-TP2/picoDB/shared/src/person.cpp
+../inc/person.h
+/home/kimi/FIUBA/7559-TP2/picoDB/shared/inc/person.h
+
