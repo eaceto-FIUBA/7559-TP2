@@ -3,3 +3,4 @@
 
 server/CMakeFiles/picoServer.dir/picoServer.cpp.o
  /home/kimi/FIUBA/7559-TP2/picoDB/server/picoServer.cpp
+ /home/kimi/FIUBA/7559-TP2/picoDB/shared/inc/person.h

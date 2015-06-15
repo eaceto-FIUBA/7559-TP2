@@ -9,4 +9,10 @@
 /home/kimi/FIUBA/7559-TP2/picoDB/server/picoServer.cpp
 iostream
 -
+../shared/inc/person.h
+/home/kimi/FIUBA/7559-TP2/picoDB/shared/inc/person.h
+
+/home/kimi/FIUBA/7559-TP2/picoDB/shared/inc/person.h
+iostream
+-
 

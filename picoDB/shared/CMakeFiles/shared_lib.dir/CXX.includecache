@@ -7,6 +7,8 @@
 #IncludeRegexTransform: 
 
 /home/kimi/FIUBA/7559-TP2/picoDB/shared/inc/person.h
+iostream
+-
 
 /home/kimi/FIUBA/7559-TP2/picoDB/shared/src/person.cpp
 ../inc/person.h
