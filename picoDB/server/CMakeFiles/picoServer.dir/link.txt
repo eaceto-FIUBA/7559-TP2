@@ -1,1 +1,1 @@
-/usr/bin/c++    -std=c++11 -std=c++11    CMakeFiles/picoServer.dir/picoServer.cpp.o  -o bin/picoServer -rdynamic ../shared/libshared_lib.a 
+/usr/bin/c++    -std=c++11 -std=c++11    CMakeFiles/picoServer.dir/picoServer.cpp.o CMakeFiles/picoServer.dir/Socket.cpp.o CMakeFiles/picoServer.dir/ServerSocket.cpp.o  -o bin/picoServer -rdynamic ../shared/libshared_lib.a 

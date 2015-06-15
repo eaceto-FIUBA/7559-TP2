@@ -11,7 +11,9 @@ add_subdirectory(./../shared shared_lib)
 
 include_directories(${SHARED_LIB_INCLUDE_DIR})
 
-set(SOURCE_FILES picoServer.cpp)
+set(SOURCE_FILES picoServer.cpp
+    Socket.h Socket.cpp
+    ServerSocket.h ServerSocket.cpp)
 
 add_executable(picoServer ${SOURCE_FILES})
 target_link_libraries(picoServer shared_lib)

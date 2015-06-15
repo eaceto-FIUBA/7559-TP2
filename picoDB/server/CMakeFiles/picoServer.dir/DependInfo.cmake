@@ -4,6 +4,8 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+  "/home/kimi/FIUBA/7559-TP2/picoDB/server/ServerSocket.cpp" "/home/kimi/FIUBA/7559-TP2/picoDB/server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o"
+  "/home/kimi/FIUBA/7559-TP2/picoDB/server/Socket.cpp" "/home/kimi/FIUBA/7559-TP2/picoDB/server/CMakeFiles/picoServer.dir/Socket.cpp.o"
   "/home/kimi/FIUBA/7559-TP2/picoDB/server/picoServer.cpp" "/home/kimi/FIUBA/7559-TP2/picoDB/server/CMakeFiles/picoServer.dir/picoServer.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")

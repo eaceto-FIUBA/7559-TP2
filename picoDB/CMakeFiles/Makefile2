@@ -74,7 +74,7 @@ shared/preinstall:
 shared/CMakeFiles/shared_lib.dir/all:
 	$(MAKE) -f shared/CMakeFiles/shared_lib.dir/build.make shared/CMakeFiles/shared_lib.dir/depend
 	$(MAKE) -f shared/CMakeFiles/shared_lib.dir/build.make shared/CMakeFiles/shared_lib.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles  3
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles  5
 	@echo "Built target shared_lib"
 .PHONY : shared/CMakeFiles/shared_lib.dir/all
 
@@ -193,7 +193,7 @@ server/preinstall: server/shared_lib/preinstall
 server/CMakeFiles/picoServer.dir/all: shared/CMakeFiles/shared_lib.dir/all
 	$(MAKE) -f server/CMakeFiles/picoServer.dir/build.make server/CMakeFiles/picoServer.dir/depend
 	$(MAKE) -f server/CMakeFiles/picoServer.dir/build.make server/CMakeFiles/picoServer.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles  2
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles  2 3 4
 	@echo "Built target picoServer"
 .PHONY : server/CMakeFiles/picoServer.dir/all
 
@@ -203,7 +203,7 @@ all: server/CMakeFiles/picoServer.dir/all
 
 # Build rule for subdir invocation for target.
 server/CMakeFiles/picoServer.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 server/CMakeFiles/picoServer.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles 0
 .PHONY : server/CMakeFiles/picoServer.dir/rule

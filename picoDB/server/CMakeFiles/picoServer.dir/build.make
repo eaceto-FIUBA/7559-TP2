@@ -72,14 +72,64 @@ server/CMakeFiles/picoServer.dir/picoServer.cpp.o.provides: server/CMakeFiles/pi
 
 server/CMakeFiles/picoServer.dir/picoServer.cpp.o.provides.build: server/CMakeFiles/picoServer.dir/picoServer.cpp.o
 
+server/CMakeFiles/picoServer.dir/Socket.cpp.o: server/CMakeFiles/picoServer.dir/flags.make
+server/CMakeFiles/picoServer.dir/Socket.cpp.o: server/Socket.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles $(CMAKE_PROGRESS_2)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object server/CMakeFiles/picoServer.dir/Socket.cpp.o"
+	cd /home/kimi/FIUBA/7559-TP2/picoDB/server && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/picoServer.dir/Socket.cpp.o -c /home/kimi/FIUBA/7559-TP2/picoDB/server/Socket.cpp
+
+server/CMakeFiles/picoServer.dir/Socket.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/picoServer.dir/Socket.cpp.i"
+	cd /home/kimi/FIUBA/7559-TP2/picoDB/server && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kimi/FIUBA/7559-TP2/picoDB/server/Socket.cpp > CMakeFiles/picoServer.dir/Socket.cpp.i
+
+server/CMakeFiles/picoServer.dir/Socket.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/picoServer.dir/Socket.cpp.s"
+	cd /home/kimi/FIUBA/7559-TP2/picoDB/server && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kimi/FIUBA/7559-TP2/picoDB/server/Socket.cpp -o CMakeFiles/picoServer.dir/Socket.cpp.s
+
+server/CMakeFiles/picoServer.dir/Socket.cpp.o.requires:
+.PHONY : server/CMakeFiles/picoServer.dir/Socket.cpp.o.requires
+
+server/CMakeFiles/picoServer.dir/Socket.cpp.o.provides: server/CMakeFiles/picoServer.dir/Socket.cpp.o.requires
+	$(MAKE) -f server/CMakeFiles/picoServer.dir/build.make server/CMakeFiles/picoServer.dir/Socket.cpp.o.provides.build
+.PHONY : server/CMakeFiles/picoServer.dir/Socket.cpp.o.provides
+
+server/CMakeFiles/picoServer.dir/Socket.cpp.o.provides.build: server/CMakeFiles/picoServer.dir/Socket.cpp.o
+
+server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o: server/CMakeFiles/picoServer.dir/flags.make
+server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o: server/ServerSocket.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles $(CMAKE_PROGRESS_3)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o"
+	cd /home/kimi/FIUBA/7559-TP2/picoDB/server && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/picoServer.dir/ServerSocket.cpp.o -c /home/kimi/FIUBA/7559-TP2/picoDB/server/ServerSocket.cpp
+
+server/CMakeFiles/picoServer.dir/ServerSocket.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/picoServer.dir/ServerSocket.cpp.i"
+	cd /home/kimi/FIUBA/7559-TP2/picoDB/server && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kimi/FIUBA/7559-TP2/picoDB/server/ServerSocket.cpp > CMakeFiles/picoServer.dir/ServerSocket.cpp.i
+
+server/CMakeFiles/picoServer.dir/ServerSocket.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/picoServer.dir/ServerSocket.cpp.s"
+	cd /home/kimi/FIUBA/7559-TP2/picoDB/server && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kimi/FIUBA/7559-TP2/picoDB/server/ServerSocket.cpp -o CMakeFiles/picoServer.dir/ServerSocket.cpp.s
+
+server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o.requires:
+.PHONY : server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o.requires
+
+server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o.provides: server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o.requires
+	$(MAKE) -f server/CMakeFiles/picoServer.dir/build.make server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o.provides.build
+.PHONY : server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o.provides
+
+server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o.provides.build: server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o
+
 # Object files for target picoServer
 picoServer_OBJECTS = \
-"CMakeFiles/picoServer.dir/picoServer.cpp.o"
+"CMakeFiles/picoServer.dir/picoServer.cpp.o" \
+"CMakeFiles/picoServer.dir/Socket.cpp.o" \
+"CMakeFiles/picoServer.dir/ServerSocket.cpp.o"
 
 # External object files for target picoServer
 picoServer_EXTERNAL_OBJECTS =
 
 server/bin/picoServer: server/CMakeFiles/picoServer.dir/picoServer.cpp.o
+server/bin/picoServer: server/CMakeFiles/picoServer.dir/Socket.cpp.o
+server/bin/picoServer: server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o
 server/bin/picoServer: server/CMakeFiles/picoServer.dir/build.make
 server/bin/picoServer: shared/libshared_lib.a
 server/bin/picoServer: server/CMakeFiles/picoServer.dir/link.txt
@@ -91,6 +141,8 @@ server/CMakeFiles/picoServer.dir/build: server/bin/picoServer
 .PHONY : server/CMakeFiles/picoServer.dir/build
 
 server/CMakeFiles/picoServer.dir/requires: server/CMakeFiles/picoServer.dir/picoServer.cpp.o.requires
+server/CMakeFiles/picoServer.dir/requires: server/CMakeFiles/picoServer.dir/Socket.cpp.o.requires
+server/CMakeFiles/picoServer.dir/requires: server/CMakeFiles/picoServer.dir/ServerSocket.cpp.o.requires
 .PHONY : server/CMakeFiles/picoServer.dir/requires
 
 server/CMakeFiles/picoServer.dir/clean:
