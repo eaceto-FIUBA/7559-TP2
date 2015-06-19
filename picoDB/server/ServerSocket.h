@@ -11,20 +11,20 @@
 #include <errno.h>
 #include <unistd.h>
 
-#include "Socket.h"
+#include "../shared/inc/Socket.h"
 
 
 class ServerSocket : public Socket {
 
 	private:
 		int nuevoFdSocket;
-		static const int CONEXIONES_PENDIENTES = 20;
+		int CONEXIONES_PENDIENTES;
 
 	public:
-		ServerSocket ( const unsigned int port );
+		ServerSocket ( const unsigned int port , const unsigned int conexiones_pendientes);
 		~ServerSocket ();
 
-		void abrirConexion ();
+		sockaddr_in abrirConexion ();
 
 		int enviar ( const void* buffer,const unsigned int buffSize ) const;
 		int recibir ( void* buffer,const unsigned int buffSize ) const;

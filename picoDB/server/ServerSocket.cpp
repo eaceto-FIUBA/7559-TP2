@@ -1,14 +1,15 @@
 #include "ServerSocket.h"
 
 
-ServerSocket :: ServerSocket ( const unsigned int port ) : Socket ( port ) {
+ServerSocket :: ServerSocket ( const unsigned int port, const unsigned int max_pending_connections ) : Socket ( port ) {
 	this->nuevoFdSocket = -1;
+	this->CONEXIONES_PENDIENTES = max_pending_connections;
 }
 
 ServerSocket :: ~ServerSocket () {
 }
 
-void ServerSocket :: abrirConexion () {
+sockaddr_in ServerSocket :: abrirConexion () {
 	struct sockaddr_in cli_addr;
 
 	// el servidor aceptara conexiones de cualquier cliente
@@ -38,6 +39,8 @@ void ServerSocket :: abrirConexion () {
 		std::string mensaje = std::string("Error en accept(): ") + std::string(strerror(errno));
 		throw mensaje;
 	}
+
+	return cli_addr;
 }
 
 int ServerSocket :: enviar ( const void* buffer,const unsigned int buffSize ) const {

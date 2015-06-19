@@ -16,7 +16,7 @@ class Socket {
 		Socket ( const unsigned int port );
 		virtual ~Socket ();
 
-		virtual void abrirConexion () = 0;
+		virtual sockaddr_in abrirConexion () = 0;
 
 		virtual int enviar ( const void* buffer,const unsigned int buffSize ) const = 0;
 		virtual int recibir ( void* buffer,const unsigned int buffSize ) const = 0;
