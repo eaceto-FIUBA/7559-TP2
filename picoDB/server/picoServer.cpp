@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 #include <string>
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <cctype>
 #include <algorithm>
@@ -39,10 +40,10 @@ bool esSelectSobreTabla(std::string command);
 bool esInsertSobreTabla(std::string command);
 bool comandoBienTerminado(std::string command);
 bool esMensajeDeAdios(std::string message);
-std::string obtenerTablaDeConsulta(std::string consulta);
+std::string obtenerTablaDeConsulta(std::string op,std::string consulta);
 std::vector<std::string> obtenerArgumentosDeInsert(std::string consulta, std::string tabla);
-
-void enviarSelectSobreTabla(ClientConnection a_client_connection, std::string tabla);
+void insertSobreTabla(ClientConnection client,std::string tabla, std::vector<std::string> args);
+void enviarSelectSobreTabla(ClientConnection client, std::string tabla);
 
 void asignarClienteEnPool(ClientConnection *clients_pool, ClientConnection client);
 void cerrarConexionConCliente(ClientConnection *clients_pool, ClientConnection client, int i);
@@ -158,7 +159,7 @@ int main(int argc, char *argv[]) {
                     }
                     else if (esSelectSobreTabla(rx_cmd)) {
                         bool found = false;
-                        std::string tabla = obtenerTablaDeConsulta(rx_cmd);
+                        std::string tabla = obtenerTablaDeConsulta("select * from",rx_cmd);
 
                         std::vector<std::string>::const_iterator it = tables.begin();
                         std::string::size_type s;
@@ -179,7 +180,7 @@ int main(int argc, char *argv[]) {
                     }
                     else if (esInsertSobreTabla(rx_cmd)) {
                         bool found = false;
-                        std::string tabla = obtenerTablaDeConsulta(rx_cmd);
+                        std::string tabla = obtenerTablaDeConsulta("insert into",rx_cmd);
                         std::vector<std::string> args = obtenerArgumentosDeInsert(rx_cmd,tabla);
 
                         std::vector<std::string>::const_iterator it = tables.begin();
@@ -188,7 +189,7 @@ int main(int argc, char *argv[]) {
                         while(it != tables.end()) {
                             s = tabla.find(*it, 0);
                             if( s != std::string::npos ) {
-                                //enviarSelectSobreTabla(a_client_connection,tabla, args);
+                                insertSobreTabla(a_client_connection,tabla, args);
                                 found = true;
                                 break;
                             }
@@ -326,43 +327,78 @@ void enviarSelectSobreTabla(ClientConnection client, std::string tabla) {
     std::to_string(ntohs(client.addr.sin_port)) << "\t\t" <<  std::endl;
 }
 
-std::string obtenerTablaDeConsulta(std::string query) {
-    std::string select("select * from");
-    std::string::size_type i = query.find(select);
+std::string obtenerTablaDeConsulta(std::string op, std::string query) {
+    std::string::size_type i = query.find(op);
 
     if (i != std::string::npos)
-        query.erase(i, select.length());
+        query.erase(i, op.length());
 
     std::string semicolon(";");
     i = query.find(semicolon);
-
     if (i != std::string::npos)
         query.erase(i, semicolon.length());
 
+    unsigned first = query.find("(");
+    unsigned last = query.find_last_of(")");
+    std::string args = query.substr (first,last-first+1);
+
+    i = query.find(args);
+    if (i != std::string::npos)
+        query.erase(i, args.length());
+
     query = trim(query);
+
     return query;
 }
 
+std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+
+std::vector<std::string> split(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    split(s, delim, elems);
+    return elems;
+}
+
 std::vector<std::string> obtenerArgumentosDeInsert(std::string query, std::string table) {
-    std::string select("insert into");
-    std::string::size_type i = query.find(select);
+    unsigned first = query.find("(");
+    unsigned last = query.find_last_of(")");
+    std::string args = query.substr (first +1,last-first+1);
 
-    if (i != std::string::npos)
-        query.erase(i, select.length());
+    std::string whitechar("\"");
+    std::string::size_type i = args.find(whitechar);
+    while (i != std::string::npos) {
+        args.erase(i, whitechar.length());
+        i = args.find(whitechar);
+    }
+    args = trim(args);
 
-    std::string semicolon(";");
-    i = query.find(semicolon);
-    if (i != std::string::npos)
-        query.erase(i, semicolon.length());
+    std::vector<std::string> argsvector = split(args,',');
 
-    i = query.find(table);
-    if (i != std::string::npos)
-        query.erase(i, table.length());
+    return argsvector;
+}
 
+void insertSobreTabla(ClientConnection client,std::string tabla, std::vector<std::string> args) {
+    // TODO. Implementar la lectura del archivo y la escritura a través de socket
+    std::ostringstream argsstr;
 
-    query = trim(query);
+    if (!args.empty())
+    {
+        // Convert all but the last element to avoid a trailing ","
+        std::copy(args.begin(), args.end()-1,
+                  std::ostream_iterator<std::string>(argsstr, ","));
 
-    std::vector<std::string> args;
+        // Now add the last element with no delimiter
+        argsstr << args.back();
+    }
 
-    return args;
+    std::cout << "insert into "<< tabla <<" args("<< std::to_string(args.size()) << "): " << argsstr.str() <<"\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
+    std::to_string(ntohs(client.addr.sin_port)) << "\t\t" <<  std::endl;
 }
