@@ -30,6 +30,8 @@ class ServerSocket {
 		int socketFD ();
 		struct sockaddr_in address ();
 
+		int aceptarNuevoCliente();
+
 		std::string hostname();
 
 		int enviar ( const void* buffer,const unsigned int buffSize ) const;

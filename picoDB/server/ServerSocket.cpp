@@ -20,6 +20,22 @@ std::string ServerSocket :: hostname() {
 	return nombre;
 }
 
+int ServerSocket :: aceptarNuevoCliente() {
+	int nuevo_cliente = -1;
+
+	sockaddr_in addr = address();
+	int addrlen = sizeof(addr);
+	if ((nuevo_cliente = accept(this->server_socket, (struct sockaddr *)&addr, (socklen_t*)&(addrlen)))<0)
+	{
+		return -1;
+	}
+
+	//inform user of socket number - used in send and receive commands
+	std::cout << "new connection " << inet_ntoa(addr.sin_addr) << ":" << std::to_string(ntohs(addr.sin_port)) << std::endl;
+
+	return nuevo_cliente;
+}
+
 
 int ServerSocket :: socketFD() {
 	return this->server_socket;
