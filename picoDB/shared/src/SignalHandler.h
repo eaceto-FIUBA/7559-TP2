@@ -1,0 +1,8 @@
+//
+// Created by Kimi on 20/06/2015.
+//
+
+#ifndef PICODB_SIGNALHANDLER_H
+#define PICODB_SIGNALHANDLER_H
+
+#endif //PICODB_SIGNALHANDLER_H

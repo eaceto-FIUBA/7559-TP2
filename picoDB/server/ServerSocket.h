@@ -12,6 +12,11 @@
 #include <unistd.h>
 #include <string>
 
+struct  ClientConnection {
+	int socket_fd;
+	sockaddr_in addr;
+};
+
 class ServerSocket {
 
 	private:
@@ -30,7 +35,7 @@ class ServerSocket {
 		int socketFD ();
 		struct sockaddr_in address ();
 
-		int aceptarNuevoCliente();
+		ClientConnection aceptarNuevoCliente();
 
 		std::string hostname();
 

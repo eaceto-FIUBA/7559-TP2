@@ -15,6 +15,9 @@
 
 #include "ServerSocket.h"
 
+#include "../shared/inc/SignalHandler.h"
+#include "../shared/inc/SIGINT_Handler.h"
+
 #define MAX_CLIENTS          10
 #define MAX_PENDING_CONNECTIONS 5
 #define SERVER_PORT          5000
@@ -24,11 +27,18 @@
  * http://www.jasonernst.com/2011/03/22/tutorial-sockets-3-ways-to-listen/
  */
 
-bool enviarBienvenidaAlCliente(int new_client_socket);
+bool enviarMensajeAlCliente(ClientConnection client, std::string message);
+bool enviarPromptAlCliente(ClientConnection client);
+bool enviarAdiosAlCliente(ClientConnection client);
+bool enviarBienvenidaAlCliente(ClientConnection client);
 
-void asignarClienteEnPool(int *clients_socket, int new_socket);
+bool esMensajeDeAdios(std::string message);
 
-void cerrarConexionConCliente(int *clients_socket_pool, int a_client_socket_fd, int i);
+void asignarClienteEnPool(ClientConnection *clients_pool, ClientConnection client);
+void cerrarConexionConCliente(ClientConnection *clients_pool, ClientConnection client, int i);
+void inicializarPoolDeClientes(ClientConnection *clients_pool);
+
+void loggearMensajeRecibido(ClientConnection client, std::string message);
 
 int main(int argc, char *argv[]) {
     ServerSocket server(SERVER_PORT, MAX_PENDING_CONNECTIONS);
@@ -41,15 +51,18 @@ int main(int argc, char *argv[]) {
     int server_socket_fd = server.socketFD();
 
     // clientes
-    int clients_socket_pool[MAX_CLIENTS];
-    int a_client_socket_fd, max_sd;
-    for (int i = 0; i < MAX_CLIENTS; i++) {
-        clients_socket_pool[i] = 0;
-    }
+    ClientConnection clients_pool[MAX_CLIENTS];
+    //ClientConnection a_client_connection;
+    int max_sd;
 
-    bool server_running = true;
+    // inicializar el pool de clientes
+    inicializarPoolDeClientes(clients_pool);
 
-    while (server_running) {
+    // Registramos signal handler de SIGINT para manejar interrupcion del Server
+    SIGINT_Handler sigint_handler;
+    SignalHandler::getInstance()->registrarHandler(SIGINT, &sigint_handler);
+
+    while (sigint_handler.getGracefulQuit() == 0) {
 
         //clear the socket set
         FD_ZERO(&readfds);
@@ -61,15 +74,15 @@ int main(int argc, char *argv[]) {
         //add child sockets to set
         for (int i = 0; i < MAX_CLIENTS; i++) {
             //socket descriptor
-            a_client_socket_fd = clients_socket_pool[i];
+            ClientConnection a_client_connection = clients_pool[i];
 
             //if valid socket descriptor then add to read list
-            if (a_client_socket_fd > 0)
-                FD_SET(a_client_socket_fd, &readfds);
+            if (a_client_connection.socket_fd > 0)
+                FD_SET(a_client_connection.socket_fd, &readfds);
 
             //highest file descriptor number, need it for the select function
-            if (a_client_socket_fd > max_sd)
-                max_sd = a_client_socket_fd;
+            if (a_client_connection.socket_fd > max_sd)
+                max_sd = a_client_connection.socket_fd;
         }
 
         //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
@@ -81,71 +94,128 @@ int main(int argc, char *argv[]) {
 
         // Si hay actividad en el socket del servidor, entonces debe ser una conexión
         if (FD_ISSET(server_socket_fd, &readfds)) {
-            int new_client_socket = server.aceptarNuevoCliente();
+            ClientConnection new_client = server.aceptarNuevoCliente();
+            if (new_client.socket_fd != -1) {
+                enviarBienvenidaAlCliente(new_client);
+                enviarPromptAlCliente(new_client);
 
-            enviarBienvenidaAlCliente(new_client_socket);
-
-            //add new socket to array of sockets
-            asignarClienteEnPool(clients_socket_pool, new_client_socket);
+                //add new socket to array of sockets
+                asignarClienteEnPool(clients_pool, new_client);
+            }
         }
 
         // verificamos otra operación de IO en otros sockets
         for (int i = 0; i < MAX_CLIENTS; i++) {
-            a_client_socket_fd = clients_socket_pool[i];
-
-            int read_count;
-            char read_buffer[1024];
+            ClientConnection a_client_connection = clients_pool[i];
 
             // solo actua si hay actividad en el socket
-            if (FD_ISSET(a_client_socket_fd, &readfds)) {
+            if (FD_ISSET(a_client_connection.socket_fd, &readfds)) {
+                char read_buffer[1024];
+
+                // leemos del buffer
+                int read_count = read(a_client_connection.socket_fd, read_buffer, 1024);
+
                 // Verificamos si lo que sucedió fue un evento de cierre de conexión (read_count = 0)
-                if ((read_count = read(a_client_socket_fd, read_buffer, 1024)) == 0) {
-                    cerrarConexionConCliente(clients_socket_pool, a_client_socket_fd, i);
+                if (read_count == 0) {
+                    cerrarConexionConCliente(clients_pool, a_client_connection, i);
                 }
                 // Procesar el mensaje entrante
                 else {
                     // echo test
                     read_buffer[read_count] = '\0';
-                    send(a_client_socket_fd, read_buffer, strlen(read_buffer), 0);
+                    std::string rx_cmd(read_buffer, read_count);
+
+                    loggearMensajeRecibido(a_client_connection,rx_cmd);
+
+                    if (esMensajeDeAdios(rx_cmd)) {
+                        cerrarConexionConCliente(clients_pool, a_client_connection, i);
+                        continue;
+                    }
+
+                    enviarPromptAlCliente(a_client_connection);
+
+                    //send(a_client_socket_fd, read_buffer, strlen(read_buffer), 0);
                 }
             }
         }
     }
+
+    std::cout << "exiting server..." << std::endl;
 
     server.terminarServidor();
 
     return 0;
 }
 
-void cerrarConexionConCliente(int *clients_socket_pool, int a_client_socket_fd, int i) {
+void inicializarPoolDeClientes(ClientConnection *clients_pool) {
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        clients_pool[i].socket_fd = 0;
+    }
+}
+
+void cerrarConexionConCliente(ClientConnection *clients_pool, ClientConnection client, int i) {
+
+    enviarAdiosAlCliente(client);
+
     // log de desconexión
-    sockaddr_in addr;
+    sockaddr_in addr = client.addr;
     int addrlen = sizeof(addr);
-    getpeername(a_client_socket_fd, (struct sockaddr *) &addr, (socklen_t *) &addrlen);
-    std::cout << "connection closed " << inet_ntoa(addr.sin_addr) << ":" << std::to_string(ntohs(addr.sin_port)) <<
+//    getpeername(client.socket_fd, (struct sockaddr *) &addr, (socklen_t *) &addrlen);
+    std::cout << "connection closed\t" << inet_ntoa(addr.sin_addr) << ":" << std::to_string(ntohs(addr.sin_port)) <<
     std::endl;
 
     // desconexón
-    close(a_client_socket_fd);
-    clients_socket_pool[i] = 0;
+    close(client.socket_fd);
+    clients_pool[i].socket_fd = 0;
 }
 
-void asignarClienteEnPool(int *clients_socket, int new_socket) {
+void asignarClienteEnPool(ClientConnection *clients_pool, ClientConnection client) {
     for (int i = 0; i < MAX_CLIENTS; i++) {
-        //if position is empty
-        if (clients_socket[i] == 0) {
-            clients_socket[i] = new_socket;
+        // Si no hay un cliente en la posición del pool
+        if (clients_pool[i].socket_fd == 0) {
+            clients_pool[i].socket_fd = client.socket_fd;
+            clients_pool[i].addr = client.addr;
             break;
         }
     }
 }
 
 // enviar el prompt al cliente como simbolo de welcome
-bool enviarBienvenidaAlCliente(int new_client_socket) {
-    std::string welcome(">");
+bool enviarPromptAlCliente(ClientConnection client) {
+    return enviarMensajeAlCliente(client,"picoServer>");
+}
 
-    if (send(new_client_socket, welcome.c_str(), welcome.length(), 0) != welcome.length()) {
+
+// enviar bienvenida
+bool enviarBienvenidaAlCliente(ClientConnection client) {
+    return enviarMensajeAlCliente(client,"Welcome!\n");
+}
+
+bool enviarAdiosAlCliente(ClientConnection client) {
+    return enviarMensajeAlCliente(client,"Goodbye!\n");
+}
+
+// enviar el prompt al cliente como simbolo de welcome
+bool enviarMensajeAlCliente(ClientConnection client, std::string message) {
+    if (send(client.socket_fd, message.c_str(), message.length(), 0) != message.length()) {
         return false;
     }
     return true;
+}
+
+void loggearMensajeRecibido(ClientConnection client, std::string message) {
+    if (message.length() > 0) {
+        std::cout << "new message from\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
+                                                                               std::to_string(ntohs(client.addr.sin_port)) << "\t\t"
+        << "("<< std::to_string(message.length()) <<")\t"
+        << message << std::endl;
+    }
+}
+
+bool esMensajeDeAdios(std::string message) {
+    std::string prefix = "exit();";
+    if (std::mismatch(prefix.begin(), prefix.end(), message.begin()).first == prefix.end()) {
+        return true;
+    }
+    return false;
 }
