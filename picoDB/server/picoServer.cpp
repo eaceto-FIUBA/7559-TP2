@@ -10,6 +10,7 @@
 #include <vector>
 #include <cctype>
 #include <algorithm>
+#include <iterator>     // std::ostream_iterator
 
 #include <stdlib.h>
 #include <sys/types.h>
