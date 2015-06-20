@@ -19,6 +19,11 @@
 #define MAX_PENDING_CONNECTIONS 5
 #define SERVER_PORT          5000
 
+/** Bio
+ * http://www.lowtek.com/sockets/select.html
+ * http://www.jasonernst.com/2011/03/22/tutorial-sockets-3-ways-to-listen/
+ */
+
 bool enviarBienvenidaAlCliente(int new_client_socket);
 
 void asignarClienteEnPool(int *clients_socket, int new_socket);
