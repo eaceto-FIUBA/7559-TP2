@@ -6,6 +6,9 @@
 #include <arpa/inet.h>
 #include <string>
 #include <iostream>
+#include <vector>
+#include <cctype>
+#include <algorithm>
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -32,13 +35,23 @@ bool enviarPromptAlCliente(ClientConnection client);
 bool enviarAdiosAlCliente(ClientConnection client);
 bool enviarBienvenidaAlCliente(ClientConnection client);
 
+bool esSelectSobreTabla(std::string command);
+bool comandoBienTerminado(std::string command);
 bool esMensajeDeAdios(std::string message);
+std::string obtenerTablaDeConsulta(std::string consulta);
+
+void enviarSelectSobreTabla(ClientConnection a_client_connection, std::string tabla);
 
 void asignarClienteEnPool(ClientConnection *clients_pool, ClientConnection client);
 void cerrarConexionConCliente(ClientConnection *clients_pool, ClientConnection client, int i);
 void inicializarPoolDeClientes(ClientConnection *clients_pool);
 
 void loggearMensajeRecibido(ClientConnection client, std::string message);
+
+
+inline std::string trim(const std::string &s);
+inline bool empieza_con(std::string const &command, std::string const & prefix);
+inline bool termina_con(std::string const & value, std::string const & ending);
 
 int main(int argc, char *argv[]) {
     ServerSocket server(SERVER_PORT, MAX_PENDING_CONNECTIONS);
@@ -61,6 +74,9 @@ int main(int argc, char *argv[]) {
     // Registramos signal handler de SIGINT para manejar interrupcion del Server
     SIGINT_Handler sigint_handler;
     SignalHandler::getInstance()->registrarHandler(SIGINT, &sigint_handler);
+
+    std::vector<std::string> tables;
+    tables.push_back("person");
 
     while (sigint_handler.getGracefulQuit() == 0) {
 
@@ -125,16 +141,44 @@ int main(int argc, char *argv[]) {
                     read_buffer[read_count] = '\0';
                     std::string rx_cmd(read_buffer, read_count);
 
+                    // normalización
+                    transform(rx_cmd.begin(), rx_cmd.end(), rx_cmd.begin(), ::tolower);
+                    rx_cmd = trim(rx_cmd);
+
                     loggearMensajeRecibido(a_client_connection,rx_cmd);
 
-                    if (esMensajeDeAdios(rx_cmd)) {
+                    if (comandoBienTerminado(rx_cmd) == false) {
+                        enviarMensajeAlCliente(a_client_connection,std::string("Error: Query must end with ';'.\n"));
+                    }
+                    else if (esMensajeDeAdios(rx_cmd)) {
                         cerrarConexionConCliente(clients_pool, a_client_connection, i);
                         continue;
                     }
+                    else if (esSelectSobreTabla(rx_cmd)) {
+                        bool found = false;
+                        std::string tabla = obtenerTablaDeConsulta(rx_cmd);
 
+                        std::vector<std::string>::const_iterator it = tables.begin();
+                        std::string::size_type s;
+
+                        while(it != tables.end()) {
+                            s = tabla.find(*it, 0);
+                            if( s != std::string::npos ) {
+                                enviarSelectSobreTabla(a_client_connection,tabla);
+                                found = true;
+                                break;
+                            }
+                            ++i;
+                        }
+
+                        if (found == false) {
+                            enviarMensajeAlCliente(a_client_connection, std::string("Error: Invalid table name: "+ tabla +"\n"));
+                        }
+                    }
+                    else {
+                        enviarMensajeAlCliente(a_client_connection,std::string("Error: Invalid command or sintax: "+ rx_cmd+ "\n"));
+                    }
                     enviarPromptAlCliente(a_client_connection);
-
-                    //send(a_client_socket_fd, read_buffer, strlen(read_buffer), 0);
                 }
             }
         }
@@ -180,7 +224,7 @@ void asignarClienteEnPool(ClientConnection *clients_pool, ClientConnection clien
     }
 }
 
-// enviar el prompt al cliente como simbolo de welcome
+// enviar el prompt al cliente
 bool enviarPromptAlCliente(ClientConnection client) {
     return enviarMensajeAlCliente(client,"picoServer>");
 }
@@ -188,7 +232,7 @@ bool enviarPromptAlCliente(ClientConnection client) {
 
 // enviar bienvenida
 bool enviarBienvenidaAlCliente(ClientConnection client) {
-    return enviarMensajeAlCliente(client,"Welcome!\n");
+    return enviarMensajeAlCliente(client,"Welcome to picoDB!\n");
 }
 
 bool enviarAdiosAlCliente(ClientConnection client) {
@@ -218,4 +262,54 @@ bool esMensajeDeAdios(std::string message) {
         return true;
     }
     return false;
+}
+
+bool comandoBienTerminado(std::string command) {
+    return termina_con(command,std::string(";"));
+}
+
+bool esSelectSobreTabla(std::string command) {
+    return empieza_con(command,std::string("select * from "));
+}
+
+inline bool empieza_con(std::string const &command, std::string const & prefix) {
+    if (std::mismatch(prefix.begin(), prefix.end(), command.begin()).first == prefix.end()) {
+        return true;
+    }
+    return false;
+}
+
+inline std::string trim(const std::string &s)
+{
+    auto wsfront=std::find_if_not(s.begin(),s.end(),[](int c){return std::isspace(c);});
+    auto wsback=std::find_if_not(s.rbegin(),s.rend(),[](int c){return std::isspace(c);}).base();
+    return (wsback<=wsfront ? std::string() : std::string(wsfront,wsback));
+}
+
+inline bool termina_con(std::string const & value, std::string const & ending)
+{
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
+void enviarSelectSobreTabla(ClientConnection client, std::string tabla) {
+    // TODO. Implementar la lectura del archivo y la escritura a través de socket
+    std::cout << "select * "<< tabla <<"\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
+    std::to_string(ntohs(client.addr.sin_port)) << "\t\t" <<  std::endl;
+}
+
+std::string obtenerTablaDeConsulta(std::string query) {
+    std::string select("select * from");
+    std::string::size_type i = query.find(select);
+
+    if (i != std::string::npos)
+        query.erase(i, select.length());
+
+    std::string semicolon(";");
+    i = query.find(semicolon);
+
+    if (i != std::string::npos)
+        query.erase(i, semicolon.length());
+
+    return query;
 }
