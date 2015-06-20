@@ -339,14 +339,15 @@ std::string obtenerTablaDeConsulta(std::string op, std::string query) {
     if (i != std::string::npos)
         query.erase(i, semicolon.length());
 
-    unsigned first = query.find("(");
-    unsigned last = query.find_last_of(")");
-    std::string args = query.substr (first,last-first+1);
+    std::string::size_type first = query.find("(");
+    std::string::size_type last = query.find_last_of(")");
+    if (first != std::string::npos && last != std::string::npos) {
+        std::string args = query.substr (first,last-first+1);
 
-    i = query.find(args);
-    if (i != std::string::npos)
-        query.erase(i, args.length());
-
+        i = query.find(args);
+        if (i != std::string::npos)
+            query.erase(i, args.length());
+    }
     query = trim(query);
 
     return query;
