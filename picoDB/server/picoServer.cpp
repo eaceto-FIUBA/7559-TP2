@@ -392,8 +392,7 @@ void insertSobreTabla(ClientConnection client,std::string tabla, std::vector<std
     if (!args.empty())
     {
         // Convert all but the last element to avoid a trailing ","
-        std::copy(args.begin(), args.end()-1,
-                  std::ostream_iterator<std::string>(argsstr, ","));
+        std::copy(args.begin(), args.end()-1, std::ostream_iterator<std::string>(argsstr, ","));
 
         // Now add the last element with no delimiter
         argsstr << args.back();
