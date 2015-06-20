@@ -36,9 +36,11 @@ bool enviarAdiosAlCliente(ClientConnection client);
 bool enviarBienvenidaAlCliente(ClientConnection client);
 
 bool esSelectSobreTabla(std::string command);
+bool esInsertSobreTabla(std::string command);
 bool comandoBienTerminado(std::string command);
 bool esMensajeDeAdios(std::string message);
 std::string obtenerTablaDeConsulta(std::string consulta);
+std::vector<std::string> obtenerArgumentosDeInsert(std::string consulta, std::string tabla);
 
 void enviarSelectSobreTabla(ClientConnection a_client_connection, std::string tabla);
 
@@ -175,6 +177,28 @@ int main(int argc, char *argv[]) {
                             enviarMensajeAlCliente(a_client_connection, std::string("Error: Invalid table name: "+ tabla +"\n"));
                         }
                     }
+                    else if (esInsertSobreTabla(rx_cmd)) {
+                        bool found = false;
+                        std::string tabla = obtenerTablaDeConsulta(rx_cmd);
+                        std::vector<std::string> args = obtenerArgumentosDeInsert(rx_cmd,tabla);
+
+                        std::vector<std::string>::const_iterator it = tables.begin();
+                        std::string::size_type s;
+
+                        while(it != tables.end()) {
+                            s = tabla.find(*it, 0);
+                            if( s != std::string::npos ) {
+                                //enviarSelectSobreTabla(a_client_connection,tabla, args);
+                                found = true;
+                                break;
+                            }
+                            ++i;
+                        }
+
+                        if (found == false) {
+                            enviarMensajeAlCliente(a_client_connection, std::string("Error: Invalid table name: "+ tabla +"\n"));
+                        }
+                    }
                     else {
                         enviarMensajeAlCliente(a_client_connection,std::string("Error: Invalid command or sintax: "+ rx_cmd+ "\n"));
                     }
@@ -269,7 +293,11 @@ bool comandoBienTerminado(std::string command) {
 }
 
 bool esSelectSobreTabla(std::string command) {
-    return empieza_con(command,std::string("select * from "));
+    return empieza_con(command,std::string("select * from"));
+}
+
+bool esInsertSobreTabla(std::string command) {
+    return empieza_con(command,std::string("insert into"));
 }
 
 inline bool empieza_con(std::string const &command, std::string const & prefix) {
@@ -311,5 +339,30 @@ std::string obtenerTablaDeConsulta(std::string query) {
     if (i != std::string::npos)
         query.erase(i, semicolon.length());
 
+    query = trim(query);
     return query;
+}
+
+std::vector<std::string> obtenerArgumentosDeInsert(std::string query, std::string table) {
+    std::string select("insert into");
+    std::string::size_type i = query.find(select);
+
+    if (i != std::string::npos)
+        query.erase(i, select.length());
+
+    std::string semicolon(";");
+    i = query.find(semicolon);
+    if (i != std::string::npos)
+        query.erase(i, semicolon.length());
+
+    i = query.find(table);
+    if (i != std::string::npos)
+        query.erase(i, table.length());
+
+
+    query = trim(query);
+
+    std::vector<std::string> args;
+
+    return args;
 }
