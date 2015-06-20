@@ -80,23 +80,17 @@ void ServerSocket::iniciarServicio() {
 }
 
 
-int ServerSocket::enviar(const void *buffer, const unsigned int buffSize) const {
-    /*
-    int cantBytes = write ( this->nuevoFdSocket,buffer,buffSize );
+int ServerSocket::enviar(ClientConnection conn, const void *buffer, const unsigned int buffSize) const {
+
+    int cantBytes = write ( conn.socket_fd,buffer,buffSize );
     return cantBytes;
-    */
-    return 0;
 }
 
-int ServerSocket::recibir(void *buffer, const unsigned int buffSize) const {
-    /*
-    int cantBytes = read ( this->nuevoFdSocket,buffer,buffSize );
+int ServerSocket::recibir(ClientConnection conn, void *buffer, const unsigned int buffSize) const {
+    int cantBytes = read ( conn.socket_fd,buffer,buffSize );
     return cantBytes;
-    */
-    return 0;
 }
 
 void ServerSocket::terminarServidor() const {
     close(this->server_socket);
-    //close ( this->fdSocket );
 }

@@ -39,8 +39,8 @@ class ServerSocket {
 
 		std::string hostname();
 
-		int enviar ( const void* buffer,const unsigned int buffSize ) const;
-		int recibir ( void* buffer,const unsigned int buffSize ) const;
+		int enviar (ClientConnection conn, const void* buffer,const unsigned int buffSize ) const;
+		int recibir (ClientConnection conn, void* buffer,const unsigned int buffSize ) const;
 
 		void terminarServidor () const;
 };
