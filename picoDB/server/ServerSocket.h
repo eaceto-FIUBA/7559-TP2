@@ -16,15 +16,14 @@ class ServerSocket {
 
 	private:
 
-
 		int server_port;
 		int server_socket;
 		struct sockaddr_in server_address;
 
-		static const int MAX_NUMBER_OF_PENDING_CONNECTIONS = 5;
+		int max_number_of_pending_connections;
 
 	public:
-		ServerSocket ( const unsigned int port );
+		ServerSocket ( const unsigned int port , const unsigned int max_pending);
 		~ServerSocket ();
 
 		void iniciarServicio ();
@@ -32,8 +31,6 @@ class ServerSocket {
 		struct sockaddr_in address ();
 
 		std::string hostname();
-
-
 
 		int enviar ( const void* buffer,const unsigned int buffSize ) const;
 		int recibir ( void* buffer,const unsigned int buffSize ) const;

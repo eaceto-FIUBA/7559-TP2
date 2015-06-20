@@ -4,8 +4,9 @@
 #include <stdlib.h>
 #include <iostream>
 
-ServerSocket :: ServerSocket ( const unsigned int port ) {
+ServerSocket :: ServerSocket ( const unsigned int port, const unsigned int max_pending) {
 	this->server_port = port;
+	this->max_number_of_pending_connections = max_pending;
 }
 
 ServerSocket :: ~ServerSocket () {
@@ -19,6 +20,7 @@ std::string ServerSocket :: hostname() {
 	return nombre;
 }
 
+
 int ServerSocket :: socketFD() {
 	return this->server_socket;
 }
@@ -28,8 +30,6 @@ struct sockaddr_in ServerSocket :: address () {
 }
 
 void ServerSocket :: iniciarServicio () {
-	struct sockaddr_in cli_addr;
-
 	// creamos el socket
 	if( (server_socket = socket(AF_INET , SOCK_STREAM , 0)) == 0)
 	{
@@ -58,7 +58,7 @@ void ServerSocket :: iniciarServicio () {
 	}
 
 	// realizamos listen especificando un maximo de conexiones pendientes
-	if (listen(server_socket, MAX_NUMBER_OF_PENDING_CONNECTIONS) < 0) {
+	if (listen(server_socket, max_number_of_pending_connections) < 0) {
 		std::string mensaje = std::string("Error on listen()") + std::string(strerror(errno));
 		throw mensaje;
 	}
