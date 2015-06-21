@@ -33,7 +33,7 @@ public:
 	int recibirMensaje(void* stream,unsigned int size);
 	int enviar(const char* stream,unsigned int size);
 
-	int getFD();
+	int socketFD();
 
 private:
 	int fd; 	 // file descriptor

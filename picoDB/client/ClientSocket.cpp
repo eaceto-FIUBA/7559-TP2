@@ -18,9 +18,10 @@ bool ClientSocket::es_valido(){
 	return this->valido;
 }
 
-int ClientSocket::getFD(){
+int ClientSocket::socketFD(){
 	return this->fd;
 }
+
 
 void ClientSocket::conectar(const std::string& host, unsigned int port) {
 
