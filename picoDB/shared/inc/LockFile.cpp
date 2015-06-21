@@ -30,9 +30,10 @@ ssize_t LockFile :: escribir ( const void* buffer,const ssize_t buffsize ) const
 	lseek ( this->fd,0,SEEK_END );
 	return write ( this->fd,buffer,buffsize );
 }
-
-ssize_t LockFile :: leer ( void* buffer,const ssize_t buffsize ) const {
+void LockFile::setInit(){
 	lseek ( this->fd,0,SEEK_SET );
+}
+ssize_t LockFile :: leer ( void* buffer,const ssize_t buffsize ) const {
 	return read( this->fd,buffer,buffsize );
 }
 

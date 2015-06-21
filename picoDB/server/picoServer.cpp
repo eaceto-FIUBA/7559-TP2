@@ -22,6 +22,7 @@
 
 #include "../shared/inc/SignalHandler.h"
 #include "../shared/inc/SIGINT_Handler.h"
+#include "../shared/inc/person.h"
 
 #define MAX_CLIENTS          10
 #define MAX_PENDING_CONNECTIONS 5
@@ -43,8 +44,8 @@ bool comandoBienTerminado(std::string command);
 bool esMensajeDeAdios(std::string message);
 std::string obtenerTablaDeConsulta(std::string op,std::string consulta);
 std::vector<std::string> obtenerArgumentosDeInsert(std::string consulta, std::string tabla);
-void insertSobreTabla(ClientConnection client,std::string tabla, std::vector<std::string> args);
-void enviarSelectSobreTabla(ClientConnection client, std::string tabla);
+void insertSobreTabla(ClientConnection client,Person &person,std::string tabla, std::vector<std::string> args);
+void enviarSelectSobreTabla(ClientConnection &client, Person &person, std::string tabla);
 
 void asignarClienteEnPool(ClientConnection *clients_pool, ClientConnection client);
 void cerrarConexionConCliente(ClientConnection *clients_pool, ClientConnection client, int i);
@@ -81,6 +82,8 @@ int main(int argc, char *argv[]) {
 
     std::vector<std::string> tables;
     tables.push_back("person");
+
+    Person person("person");
 
     while (sigint_handler.getGracefulQuit() == 0) {
 
@@ -168,7 +171,7 @@ int main(int argc, char *argv[]) {
                         while(it != tables.end()) {
                             s = tabla.find(*it, 0);
                             if( s != std::string::npos ) {
-                                enviarSelectSobreTabla(a_client_connection,tabla);
+                                enviarSelectSobreTabla(a_client_connection,person,tabla);
                                 found = true;
                                 break;
                             }
@@ -190,7 +193,7 @@ int main(int argc, char *argv[]) {
                         while(it != tables.end()) {
                             s = tabla.find(*it, 0);
                             if( s != std::string::npos ) {
-                                insertSobreTabla(a_client_connection,tabla, args);
+                                insertSobreTabla(a_client_connection,person,tabla, args);
                                 found = true;
                                 break;
                             }
@@ -322,7 +325,11 @@ inline bool termina_con(std::string const & value, std::string const & ending)
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
-void enviarSelectSobreTabla(ClientConnection client, std::string tabla) {
+void enviarSelectSobreTabla(ClientConnection &client, Person &person, std::string tabla) {
+	std::string select_all = person.getPersons();
+
+	enviarMensajeAlCliente(client, select_all);
+
     // TODO. Implementar la lectura del archivo y la escritura a través de socket
     std::cout << "select * "<< tabla <<"\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
     std::to_string(ntohs(client.addr.sin_port)) << "\t\t" <<  std::endl;
@@ -372,7 +379,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 std::vector<std::string> obtenerArgumentosDeInsert(std::string query, std::string table) {
     unsigned first = query.find("(");
     unsigned last = query.find_last_of(")");
-    std::string args = query.substr (first +1,last-first+1);
+    std::string args = query.substr (first +1,last-first-1);
 
     std::string whitechar("\"");
     std::string::size_type i = args.find(whitechar);
@@ -387,19 +394,24 @@ std::vector<std::string> obtenerArgumentosDeInsert(std::string query, std::strin
     return argsvector;
 }
 
-void insertSobreTabla(ClientConnection client,std::string tabla, std::vector<std::string> args) {
-    // TODO. Implementar la lectura del archivo y la escritura a través de socket
+void insertSobreTabla(ClientConnection client, Person &person,std::string tabla, std::vector<std::string> args) {
+
     std::ostringstream argsstr;
 
-    if (!args.empty())
-    {
+    if(args.size()==3){
+    	std::string nombre = args[0];
+    	std::string direccion = args[1];
+    	std::string telefono = args[2];
+
+        person.addPerson(nombre,direccion,telefono);
+
         // Convert all but the last element to avoid a trailing ","
         std::copy(args.begin(), args.end()-1, std::ostream_iterator<std::string>(argsstr, ","));
 
         // Now add the last element with no delimiter
         argsstr << args.back();
-    }
 
-    std::cout << "insert into "<< tabla <<" args("<< std::to_string(args.size()) << "): " << argsstr.str() <<"\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
-    std::to_string(ntohs(client.addr.sin_port)) << "\t\t" <<  std::endl;
+        std::cout << "insert into "<< tabla <<" args("<< std::to_string(args.size()) << "): " << argsstr.str() <<"\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
+        std::to_string(ntohs(client.addr.sin_port)) << "\t\t" <<  std::endl;
+    }
 }

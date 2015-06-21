@@ -34,6 +34,24 @@ void Person::addPerson(std::string n, std::string d, std::string t) {
 }
 
 std::string Person::getPersons() {
-	std::string total = "";
-	return total;
+	std::string buffer_str = "";
+
+	char buffer[40];
+	size_t offset = 0;
+	size_t bytes_read;
+	int i;
+	file.tomarLockLectura();
+	file.setInit();
+	do {
+		memset(buffer, 0, sizeof(buffer));
+		/* Read the next line's worth of bytes.  */
+		bytes_read =  file.leer(buffer,sizeof (buffer));
+		buffer_str.append(buffer);
+	    /* Keep count of our position in the file.  */
+	    offset += bytes_read;
+	}
+	while (bytes_read == sizeof (buffer));
+	file.liberarLock();
+	std::cout<< "TABLA: \n" << buffer_str << std::endl;
+	return buffer_str;
 }

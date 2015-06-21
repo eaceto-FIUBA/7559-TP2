@@ -11,6 +11,7 @@
 #define TABLE_PERSON_COLUMN_TELEFONO_FIXED_SIZE     13
 
 #include <iostream>
+#include <string.h>
 #include "LockFile.h"
 
 using namespace std;
@@ -29,6 +30,7 @@ public:
     ~Person();
     void addPerson(std::string nombre, std::string direccion, std::string telefono);
     std::string getPersons();
+
 //    Person(std::string nombre, std::string direccion, std::string telefono);
 };
 
