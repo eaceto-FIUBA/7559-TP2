@@ -19,7 +19,7 @@ else()
 
 include_directories(${SHARED_LIB_INCLUDE_DIR})
 
-set(LIB_SRCS ./src/person.cpp ./src/SignalHandler.cpp)
+set(LIB_SRCS ./src/person.cpp ./src/SignalHandler.cpp ./src/SocketException.h)
 
 add_library(shared_lib STATIC ${LIB_SRCS})
 
