@@ -115,10 +115,10 @@ int main(int argc, char *argv[]) {
         // Si hay actividad en el socket del servidor, entonces debe ser una conexión
         if (FD_ISSET(server_socket_fd, &readfds)) {
             ClientConnection new_client = server.aceptarNuevoCliente();
+
             if (new_client.socket_fd != -1) {
                 enviarBienvenidaAlCliente(new_client);
                 enviarPromptAlCliente(new_client);
-
                 //add new socket to array of sockets
                 asignarClienteEnPool(clients_pool, new_client);
             }
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
                 int read_count = read(a_client_connection.socket_fd, read_buffer, 1024);
 
                 // Verificamos si lo que sucedió fue un evento de cierre de conexión (read_count = 0)
-                if (read_count == 0) {
+                if ((read_count == 0) || (read_count == -1)) {
                     cerrarConexionConCliente(clients_pool, a_client_connection, i);
                 }
                 // Procesar el mensaje entrante
