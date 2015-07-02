@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
     tables.push_back("person");
 
     // init person DB
-    Person person("person");
+    Person person("person.db");
 
     while (sigint_handler.getGracefulQuit() == 0) {
 
