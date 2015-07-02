@@ -17,19 +17,19 @@ private:
 
 public:
 
-    SIGINT_Handler () : gracefulQuit(0) {
+    SIGINT_Handler() : gracefulQuit(0) {
     }
 
-    ~SIGINT_Handler () {
+    ~SIGINT_Handler() {
     }
 
-    virtual int handleSignal ( int signum ) {
-        assert ( signum == SIGINT );
+    virtual int handleSignal(int signum) {
+        assert (signum == SIGINT);
         this->gracefulQuit = 1;
         return 0;
     }
 
-    sig_atomic_t getGracefulQuit () const {
+    sig_atomic_t getGracefulQuit() const {
         return this->gracefulQuit;
     }
 

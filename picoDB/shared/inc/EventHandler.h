@@ -8,8 +8,9 @@
 class EventHandler {
 
 public:
-    virtual int handleSignal ( int signum ) = 0;
-    virtual ~EventHandler () {};
+    virtual int handleSignal(int signum) = 0;
+
+    virtual ~EventHandler() { };
 };
 
 

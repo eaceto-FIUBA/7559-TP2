@@ -1,7 +1,4 @@
 #include "ServerSocket.h"
-#include <stdio.h>
-#include <string.h>   //strlen
-#include <stdlib.h>
 #include <iostream>
 
 ServerSocket::ServerSocket(const unsigned int port, const unsigned int max_pending) {
@@ -31,7 +28,8 @@ ClientConnection ServerSocket::aceptarNuevoCliente() {
     }
     else {
         //inform user of socket number - used in send and receive commands
-        std::cout << "new connection\t\t" << inet_ntoa(addr.sin_addr) << ":" << std::to_string(ntohs(addr.sin_port)) << std::endl;
+        std::cout << "new connection\t\t" << inet_ntoa(addr.sin_addr) << ":" << std::to_string(ntohs(addr.sin_port)) <<
+        std::endl;
         cc.addr = addr;
         cc.socket_fd = socket;
     }
@@ -82,12 +80,12 @@ void ServerSocket::iniciarServicio() {
 
 int ServerSocket::enviar(ClientConnection conn, const void *buffer, const unsigned int buffSize) const {
 
-    int cantBytes = write ( conn.socket_fd,buffer,buffSize );
+    int cantBytes = write(conn.socket_fd, buffer, buffSize);
     return cantBytes;
 }
 
 int ServerSocket::recibir(ClientConnection conn, void *buffer, const unsigned int buffSize) const {
-    int cantBytes = read ( conn.socket_fd,buffer,buffSize );
+    int cantBytes = read(conn.socket_fd, buffer, buffSize);
     return cantBytes;
 }
 

@@ -8,22 +8,30 @@
 class LockFile {
 
 private:
-	struct flock fl;
-	int fd;
-	std::string nombre;
+    struct flock fl;
+    int fd;
+    std::string nombre;
 
 public:
-	LockFile ( const std::string nombre );
-	~LockFile();
+    LockFile(const std::string nombre);
 
-	std::string nombreArchivo() const;
+    ~LockFile();
 
-	int tomarLockLectura();
-	int tomarLockEscritura ();
-	int liberarLock ();
-	ssize_t escribir ( const void* buffer,const ssize_t buffsize ) const;
-	ssize_t leer ( void* buffer,const ssize_t buffsize ) const;
-	void setInit();
+    std::string nombreArchivo() const;
+
+    int tomarLockLectura();
+
+    int tomarLockEscritura();
+
+    int liberarLock();
+
+    ssize_t escribir(const void *buffer, const ssize_t buffsize) const;
+
+    ssize_t leer(void *buffer, const ssize_t buffsize) const;
+
+    int leerLinea(char **line, const ssize_t buffsize);
+
+    void setInit();
 };
 
 #endif /* LOCKFILE_H_ */

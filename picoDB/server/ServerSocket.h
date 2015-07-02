@@ -12,37 +12,41 @@
 #include <unistd.h>
 #include <string>
 
-struct  ClientConnection {
-	int socket_fd;
-	sockaddr_in addr;
+struct ClientConnection {
+    int socket_fd;
+    sockaddr_in addr;
 };
 
 class ServerSocket {
 
-	private:
+private:
 
-		int server_port;
-		int server_socket;
-		struct sockaddr_in server_address;
+    int server_port;
+    int server_socket;
+    struct sockaddr_in server_address;
 
-		int max_number_of_pending_connections;
+    int max_number_of_pending_connections;
 
-	public:
-		ServerSocket ( const unsigned int port , const unsigned int max_pending);
-		~ServerSocket ();
+public:
+    ServerSocket(const unsigned int port, const unsigned int max_pending);
 
-		void iniciarServicio ();
-		int socketFD ();
-		struct sockaddr_in address ();
+    ~ServerSocket();
 
-		ClientConnection aceptarNuevoCliente();
+    void iniciarServicio();
 
-		std::string hostname();
+    int socketFD();
 
-		int enviar (ClientConnection conn, const void* buffer,const unsigned int buffSize ) const;
-		int recibir (ClientConnection conn, void* buffer,const unsigned int buffSize ) const;
+    struct sockaddr_in address();
 
-		void terminarServidor () const;
+    ClientConnection aceptarNuevoCliente();
+
+    std::string hostname();
+
+    int enviar(ClientConnection conn, const void *buffer, const unsigned int buffSize) const;
+
+    int recibir(ClientConnection conn, void *buffer, const unsigned int buffSize) const;
+
+    void terminarServidor() const;
 };
 
 #endif /* SERVERSOCKET_H_ */

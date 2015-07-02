@@ -3,25 +3,25 @@
 
 #include <string>
 
-class SocketException{
+class SocketException {
 
 public:
 
-	SocketException(const std::string &mensaje) : mensaje(mensaje) {
+    SocketException(const std::string &mensaje) : mensaje(mensaje) {
 
-	};
+    };
 
-	~SocketException() {};
+    ~SocketException() { };
 
-	std::string getMensaje() const {
+    std::string getMensaje() const {
 
-		return mensaje;
+        return mensaje;
 
-	};
+    };
 
 private:
 
-	std::string mensaje;
+    std::string mensaje;
 
 };
 

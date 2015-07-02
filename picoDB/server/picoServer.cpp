@@ -1,22 +1,13 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <string>
+#include <ctime>
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include <cctype>
-#include <algorithm>
-#include <iterator>     // std::ostream_iterator
-
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
 
 #include "ServerSocket.h"
 
@@ -34,29 +25,43 @@
  */
 
 bool enviarMensajeAlCliente(ClientConnection client, std::string message);
+
 bool enviarPromptAlCliente(ClientConnection client);
+
 bool enviarAdiosAlCliente(ClientConnection client);
+
 bool enviarBienvenidaAlCliente(ClientConnection client);
 
 bool esSelectSobreTabla(std::string command);
+
 bool esInsertSobreTabla(std::string command);
+
 bool comandoBienTerminado(std::string command);
+
 bool esMensajeDeAdios(std::string message);
-std::string obtenerTablaDeConsulta(std::string op,std::string consulta);
+
+std::string obtenerTablaDeConsulta(std::string op, std::string consulta);
+
 std::vector<std::string> obtenerArgumentosDeInsert(std::string consulta, std::string tabla);
-void insertSobreTabla(ClientConnection client,Person &person,std::string tabla, std::vector<std::string> args);
+
+void insertSobreTabla(ClientConnection client, Person &person, std::string tabla, std::vector<std::string> args);
+
 void enviarSelectSobreTabla(ClientConnection &client, Person &person, std::string tabla);
 
 void asignarClienteEnPool(ClientConnection *clients_pool, ClientConnection client);
+
 void cerrarConexionConCliente(ClientConnection *clients_pool, ClientConnection client, int i);
+
 void inicializarPoolDeClientes(ClientConnection *clients_pool);
 
 void loggearMensajeRecibido(ClientConnection client, std::string message);
 
 
 inline std::string trim(const std::string &s);
-inline bool empieza_con(std::string const &command, std::string const & prefix);
-inline bool termina_con(std::string const & value, std::string const & ending);
+
+inline bool empieza_con(std::string const &command, std::string const &prefix);
+
+inline bool termina_con(std::string const &value, std::string const &ending);
 
 int main(int argc, char *argv[]) {
     ServerSocket server(SERVER_PORT, MAX_PENDING_CONNECTIONS);
@@ -140,7 +145,7 @@ int main(int argc, char *argv[]) {
                 if ((read_count == 0) || (read_count == -1)) {
                     cerrarConexionConCliente(clients_pool, a_client_connection, i);
                 }
-                // Procesar el mensaje entrante
+                    // Procesar el mensaje entrante
                 else {
                     // echo test
                     read_buffer[read_count] = '\0';
@@ -150,10 +155,10 @@ int main(int argc, char *argv[]) {
                     transform(rx_cmd.begin(), rx_cmd.end(), rx_cmd.begin(), ::tolower);
                     rx_cmd = trim(rx_cmd);
 
-                    loggearMensajeRecibido(a_client_connection,rx_cmd);
+                    loggearMensajeRecibido(a_client_connection, rx_cmd);
 
                     if (comandoBienTerminado(rx_cmd) == false) {
-                        enviarMensajeAlCliente(a_client_connection,std::string("Error: Query must end with ';'.\n"));
+                        enviarMensajeAlCliente(a_client_connection, std::string("Error: Query must end with ';'.\n"));
                     }
                     else if (esMensajeDeAdios(rx_cmd)) {
                         cerrarConexionConCliente(clients_pool, a_client_connection, i);
@@ -161,16 +166,16 @@ int main(int argc, char *argv[]) {
                     }
                     else if (esSelectSobreTabla(rx_cmd)) {
                         bool found = false;
-                        std::string tabla = obtenerTablaDeConsulta("select * from",rx_cmd);
+                        std::string tabla = obtenerTablaDeConsulta("select * from", rx_cmd);
 
                         std::vector<std::string>::const_iterator it = tables.begin();
                         std::string::size_type s;
 
-                        while(it != tables.end()) {
+                        while (it != tables.end()) {
                             s = tabla.find(*it, 0);
-                            if( s != std::string::npos ) {
+                            if (s != std::string::npos) {
                                 Person person("person");
-                                enviarSelectSobreTabla(a_client_connection,person,tabla);
+                                enviarSelectSobreTabla(a_client_connection, person, tabla);
                                 found = true;
                                 break;
                             }
@@ -178,22 +183,23 @@ int main(int argc, char *argv[]) {
                         }
 
                         if (found == false) {
-                            enviarMensajeAlCliente(a_client_connection, std::string("Error: Invalid table name: "+ tabla +"\n"));
+                            enviarMensajeAlCliente(a_client_connection,
+                                                   std::string("Error: Invalid table name: " + tabla + "\n"));
                         }
                     }
                     else if (esInsertSobreTabla(rx_cmd)) {
                         bool found = false;
-                        std::string tabla = obtenerTablaDeConsulta("insert into",rx_cmd);
-                        std::vector<std::string> args = obtenerArgumentosDeInsert(rx_cmd,tabla);
+                        std::string tabla = obtenerTablaDeConsulta("insert into", rx_cmd);
+                        std::vector<std::string> args = obtenerArgumentosDeInsert(rx_cmd, tabla);
 
                         std::vector<std::string>::const_iterator it = tables.begin();
                         std::string::size_type s;
 
-                        while(it != tables.end()) {
+                        while (it != tables.end()) {
                             s = tabla.find(*it, 0);
-                            if( s != std::string::npos ) {
+                            if (s != std::string::npos) {
                                 Person person("person");
-                                insertSobreTabla(a_client_connection,person,tabla, args);
+                                insertSobreTabla(a_client_connection, person, tabla, args);
                                 found = true;
                                 break;
                             }
@@ -201,11 +207,13 @@ int main(int argc, char *argv[]) {
                         }
 
                         if (found == false) {
-                            enviarMensajeAlCliente(a_client_connection, std::string("Error: Invalid table name: "+ tabla +"\n"));
+                            enviarMensajeAlCliente(a_client_connection,
+                                                   std::string("Error: Invalid table name: " + tabla + "\n"));
                         }
                     }
                     else {
-                        enviarMensajeAlCliente(a_client_connection,std::string("Error: Invalid command or sintax: "+ rx_cmd+ "\n"));
+                        enviarMensajeAlCliente(a_client_connection,
+                                               std::string("Error: Invalid command or sintax: " + rx_cmd + "\n"));
                     }
                     enviarPromptAlCliente(a_client_connection);
                 }
@@ -255,17 +263,17 @@ void asignarClienteEnPool(ClientConnection *clients_pool, ClientConnection clien
 
 // enviar el prompt al cliente
 bool enviarPromptAlCliente(ClientConnection client) {
-    return enviarMensajeAlCliente(client,"picoServer>");
+    return enviarMensajeAlCliente(client, "picoServer>");
 }
 
 
 // enviar bienvenida
 bool enviarBienvenidaAlCliente(ClientConnection client) {
-    return enviarMensajeAlCliente(client,"Welcome to picoDB!\n");
+    return enviarMensajeAlCliente(client, "Welcome to picoDB!\n");
 }
 
 bool enviarAdiosAlCliente(ClientConnection client) {
-    return enviarMensajeAlCliente(client,"Goodbye!\n");
+    return enviarMensajeAlCliente(client, "Goodbye!\n");
 }
 
 // enviar el prompt al cliente como simbolo de welcome
@@ -279,8 +287,8 @@ bool enviarMensajeAlCliente(ClientConnection client, std::string message) {
 void loggearMensajeRecibido(ClientConnection client, std::string message) {
     if (message.length() > 0) {
         std::cout << "new message from\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
-                                                                               std::to_string(ntohs(client.addr.sin_port)) << "\t\t"
-        << "("<< std::to_string(message.length()) <<")\t"
+        std::to_string(ntohs(client.addr.sin_port)) << "\t\t"
+        << "(" << std::to_string(message.length()) << ")\t"
         << message << std::endl;
     }
 }
@@ -294,45 +302,127 @@ bool esMensajeDeAdios(std::string message) {
 }
 
 bool comandoBienTerminado(std::string command) {
-    return termina_con(command,std::string(";"));
+    return termina_con(command, std::string(";"));
 }
 
 bool esSelectSobreTabla(std::string command) {
-    return empieza_con(command,std::string("select * from"));
+    return empieza_con(command, std::string("select * from"));
 }
 
 bool esInsertSobreTabla(std::string command) {
-    return empieza_con(command,std::string("insert into"));
+    return empieza_con(command, std::string("insert into"));
 }
 
-inline bool empieza_con(std::string const &command, std::string const & prefix) {
+inline bool empieza_con(std::string const &command, std::string const &prefix) {
     if (std::mismatch(prefix.begin(), prefix.end(), command.begin()).first == prefix.end()) {
         return true;
     }
     return false;
 }
 
-inline std::string trim(const std::string &s)
-{
-    auto wsfront=std::find_if_not(s.begin(),s.end(),[](int c){return std::isspace(c);});
-    auto wsback=std::find_if_not(s.rbegin(),s.rend(),[](int c){return std::isspace(c);}).base();
-    return (wsback<=wsfront ? std::string() : std::string(wsfront,wsback));
+inline std::string trim(const std::string &s) {
+    auto wsfront = std::find_if_not(s.begin(), s.end(), [](int c) { return std::isspace(c); });
+    auto wsback = std::find_if_not(s.rbegin(), s.rend(), [](int c) { return std::isspace(c); }).base();
+    return (wsback <= wsfront ? std::string() : std::string(wsfront, wsback));
 }
 
-inline bool termina_con(std::string const & value, std::string const & ending)
-{
+inline bool termina_con(std::string const &value, std::string const &ending) {
     if (ending.size() > value.size()) return false;
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
 void enviarSelectSobreTabla(ClientConnection &client, Person &person, std::string tabla) {
-	std::string select_all = person.getPersons();
 
-	enviarMensajeAlCliente(client, select_all);
+    time_t now = time(0);
 
-    // TODO. Implementar la lectura del archivo y la escritura a través de socket
-    std::cout << "select * "<< tabla <<"\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
-    std::to_string(ntohs(client.addr.sin_port)) << "\t\t" <<  std::endl;
+    std::vector<PersonRow> persons = person.getPersons();
+
+    int rows = persons.size();
+
+    if (rows > 0) {
+
+        int maxn = 0;
+        int maxd = 0;
+        int maxt = 0;
+
+        for (int i = 0; i < rows; i++) {
+            PersonRow pr = persons[i];
+            std::string n = pr.getNombre();
+            std::string d = pr.getDireccion();
+            std::string t = pr.getTelefono();
+
+            if (n.length() > maxn) maxn = n.length();
+            if (d.length() > maxd) maxd = d.length();
+            if (t.length() > maxt) maxt = t.length();
+        }
+
+        maxn += 2;
+        maxd += 2;
+        maxt += 2;
+
+        // print header
+        enviarMensajeAlCliente(client, "+");
+        for (int i = 0; i < maxn; i++) enviarMensajeAlCliente(client, "-");
+        enviarMensajeAlCliente(client, "+");
+        for (int i = 0; i < maxd; i++) enviarMensajeAlCliente(client, "-");
+        enviarMensajeAlCliente(client, "+");
+        for (int i = 0; i < maxt; i++) enviarMensajeAlCliente(client, "-");
+        enviarMensajeAlCliente(client, "+\n");
+
+        // print column names
+        enviarMensajeAlCliente(client, "| nombre");
+        for (int i = 0; i < maxn - 7; i++) enviarMensajeAlCliente(client, " ");
+        enviarMensajeAlCliente(client, "| direccion");
+        for (int i = 0; i < maxd - 10; i++) enviarMensajeAlCliente(client, " ");
+        enviarMensajeAlCliente(client, "| telefono");
+        for (int i = 0; i < maxt - 9; i++) enviarMensajeAlCliente(client, " ");
+        enviarMensajeAlCliente(client, "|\n");
+
+        // print separator
+        enviarMensajeAlCliente(client, "+");
+        for (int i = 0; i < maxn; i++) enviarMensajeAlCliente(client, "-");
+        enviarMensajeAlCliente(client, "+");
+        for (int i = 0; i < maxd; i++) enviarMensajeAlCliente(client, "-");
+        enviarMensajeAlCliente(client, "+");
+        for (int i = 0; i < maxt; i++) enviarMensajeAlCliente(client, "-");
+        enviarMensajeAlCliente(client, "+\n");
+
+        for (int i = 0; i < rows; i++) {
+            PersonRow pr = persons[i];
+            std::string n = pr.getNombre();
+            std::string d = pr.getDireccion();
+            std::string t = pr.getTelefono();
+
+            enviarMensajeAlCliente(client, "| " + n);
+            for (int i = 0; i < maxn - n.length() - 1; i++) enviarMensajeAlCliente(client, " ");
+            enviarMensajeAlCliente(client, "| " + d);
+            for (int i = 0; i < maxd - d.length() - 1; i++) enviarMensajeAlCliente(client, " ");
+            enviarMensajeAlCliente(client, "| " + t);
+            for (int i = 0; i < maxt - t.length() - 1; i++) enviarMensajeAlCliente(client, " ");
+            enviarMensajeAlCliente(client, "|");
+            enviarMensajeAlCliente(client, "\n");
+        }
+
+
+        // print footer
+        enviarMensajeAlCliente(client, "+");
+        for (int i = 0; i < maxn; i++) enviarMensajeAlCliente(client, "-");
+        enviarMensajeAlCliente(client, "+");
+        for (int i = 0; i < maxd; i++) enviarMensajeAlCliente(client, "-");
+        enviarMensajeAlCliente(client, "+");
+        for (int i = 0; i < maxt; i++) enviarMensajeAlCliente(client, "-");
+        enviarMensajeAlCliente(client, "+\n");
+    }
+
+    time_t done = time(0);
+
+    double timediff = difftime(done, now);
+
+    enviarMensajeAlCliente(client, string(std::to_string(rows) + " row" + string(rows != 1 ? "s" : "") + " in set (" +
+                                          to_string(timediff) + " sec)\n\n"));
+    
+    std::cout << "select * " << tabla << "\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
+    std::to_string(ntohs(client.addr.sin_port)) << "\t\t" << std::endl;
 }
 
 std::string obtenerTablaDeConsulta(std::string op, std::string query) {
@@ -349,7 +439,7 @@ std::string obtenerTablaDeConsulta(std::string op, std::string query) {
     std::string::size_type first = query.find("(");
     std::string::size_type last = query.find_last_of(")");
     if (first != std::string::npos && last != std::string::npos) {
-        std::string args = query.substr (first,last-first+1);
+        std::string args = query.substr(first, last - first + 1);
 
         i = query.find(args);
         if (i != std::string::npos)
@@ -379,7 +469,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 std::vector<std::string> obtenerArgumentosDeInsert(std::string query, std::string table) {
     unsigned first = query.find("(");
     unsigned last = query.find_last_of(")");
-    std::string args = query.substr (first +1,last-first-1);
+    std::string args = query.substr(first + 1, last - first - 1);
 
     std::string whitechar("\"");
     std::string::size_type i = args.find(whitechar);
@@ -389,44 +479,45 @@ std::vector<std::string> obtenerArgumentosDeInsert(std::string query, std::strin
     }
     args = trim(args);
 
-    std::vector<std::string> argsvector = split(args,',');
+    std::vector<std::string> argsvector = split(args, ',');
 
     return argsvector;
 }
 
-void insertSobreTabla(ClientConnection client, Person &person,std::string tabla, std::vector<std::string> args) {
+void insertSobreTabla(ClientConnection client, Person &person, std::string tabla, std::vector<std::string> args) {
 
     std::ostringstream argsstr;
 
-    if(args.size()==3){
-    	std::string nombre = args[0];
-    	std::string direccion = args[1];
-    	std::string telefono = args[2];
+    if (args.size() == 3) {
+        std::string nombre = args[0];
+        std::string direccion = args[1];
+        std::string telefono = args[2];
 
         bool personAdded = false;
         std::string error = "";
         try {
-            personAdded = person.addPerson(nombre,direccion,telefono);
+            personAdded = person.addPerson(nombre, direccion, telefono);
         } catch (std::string exc) {
             personAdded = false;
             std::cerr << "exception on insert: " << exc << std::endl;
-            error = std::string("ERROR: " + exc +  "\n");
+            error = std::string("ERROR: " + exc + "\n");
         }
 
 
         // Convert all but the last element to avoid a trailing ","
-        std::copy(args.begin(), args.end()-1, std::ostream_iterator<std::string>(argsstr, ","));
+        std::copy(args.begin(), args.end() - 1, std::ostream_iterator<std::string>(argsstr, ","));
 
         // Now add the last element with no delimiter
         argsstr << args.back();
 
-        std::cout << "insert into "<< tabla <<" args("<< std::to_string(args.size()) << "): " << argsstr.str() <<"\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
-        std::to_string(ntohs(client.addr.sin_port)) << "\t\t" <<  std::endl;
+        std::cout << "insert into " << tabla << " args(" << std::to_string(args.size()) << "): " << argsstr.str() <<
+        "\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
+        std::to_string(ntohs(client.addr.sin_port)) << "\t\t" << std::endl;
 
-        enviarMensajeAlCliente(client,personAdded ? "1 row affected\n" : error);
+        enviarMensajeAlCliente(client, personAdded ? "1 row affected\n" : error);
     }
     else {
         // informar sobre error en la sentencia
-        enviarMensajeAlCliente(client,"ERROR: invalid argument count\n");
+        enviarMensajeAlCliente(client, "ERROR: invalid argument count\n");
     }
 }

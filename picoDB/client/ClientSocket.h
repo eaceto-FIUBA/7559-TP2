@@ -1,4 +1,3 @@
-
 #ifndef CLIENTSOCKET_H_
 #define CLIENTSOCKET_H_
 
@@ -17,28 +16,31 @@ class ClientSocket {
 
 public:
 
-	ClientSocket();
-	~ClientSocket();
+    ClientSocket();
 
-	void conectar(const std::string& host, unsigned int port);
+    ~ClientSocket();
 
-	/**
-	 * Retorna true si el Socket es valido, false en caso contrario.
-	 */
-	bool es_valido();
+    void conectar(const std::string &host, unsigned int port);
 
-	void desconectar();
-	void shutdown();
+    /**
+     * Retorna true si el Socket es valido, false en caso contrario.
+     */
+    bool es_valido();
 
-	int recibirMensaje(void* stream,unsigned int size);
-	int enviar(const char* stream,unsigned int size);
+    void desconectar();
 
-	int socketFD();
+    void shutdown();
+
+    int recibirMensaje(void *stream, unsigned int size);
+
+    int enviar(const char *stream, unsigned int size);
+
+    int socketFD();
 
 private:
-	int fd; 	 // file descriptor
-	bool valido; // estado del Socket
-	struct sockaddr_in servidor;
+    int fd;     // file descriptor
+    bool valido; // estado del Socket
+    struct sockaddr_in servidor;
 
 };
 

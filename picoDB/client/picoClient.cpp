@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
-#include <string>
 
 #include "ClientSocket.h"
 #include "../shared/src/SocketException.h"
@@ -13,7 +12,7 @@
 using namespace std;
 
 static const unsigned int SIZE_RECIBIR = 10;
-static const char* goodbye = "Goodbye!";
+static const char *goodbye = "Goodbye!";
 
 int enviarMensaje(ClientSocket &cliente, std::string message) {
 
@@ -22,16 +21,16 @@ int enviarMensaje(ClientSocket &cliente, std::string message) {
 }
 
 int recibirMensaje(ClientSocket &cliente, void *buffer, const unsigned int buffSize) {
-    int cantBytes = read ( cliente.socketFD(),buffer,buffSize );
+    int cantBytes = read(cliente.socketFD(), buffer, buffSize);
     return cantBytes;
 }
 
-bool is_prompt(std::string read_buffer){
-	if(read_buffer.find("picoServer>") != std::string::npos){
-		return true;
-	}else{
-		return false;
-	}
+bool is_prompt(std::string read_buffer) {
+    if (read_buffer.find("picoServer>") != std::string::npos) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -42,10 +41,10 @@ int main(int argc, char *argv[]) {
 
     int max_sd;
 
-    try{
-    	cliente.conectar("127.0.0.1", 5000);
-    }catch(SocketException &e){
-    		std::cout << e.getMensaje() << std::endl;
+    try {
+        cliente.conectar("127.0.0.1", 5000);
+    } catch (SocketException &e) {
+        std::cout << e.getMensaje() << std::endl;
     }
 
     // file descriptors
@@ -59,7 +58,7 @@ int main(int argc, char *argv[]) {
     std::string mensaje;
     while (sigint_handler.getGracefulQuit() == 0) {
 
-    	//clear the socket set
+        //clear the socket set
         FD_ZERO(&readfds);
 
         FD_SET(client_socket_fd, &readfds);
@@ -70,27 +69,27 @@ int main(int argc, char *argv[]) {
         // Si hay actividad en el socket del cliente, entonces debe ser un mensaje del servidor
         if (FD_ISSET(client_socket_fd, &readfds)) {
 
-			char read_buffer[1024];
+            char read_buffer[1024];
 
-			int read_count = recibirMensaje(cliente, read_buffer, 1024 );
-			read_buffer[read_count] = '\0';
+            int read_count = recibirMensaje(cliente, read_buffer, 1024);
+            read_buffer[read_count] = '\0';
 
-			std::string respuesta(read_buffer);
-			std::cout << respuesta;
+            std::string respuesta(read_buffer);
+            std::cout << respuesta;
 
-			if(is_prompt(respuesta)){
+            if (is_prompt(respuesta)) {
 
-				// leeo lina del prompt
-				std::getline (std::cin, mensaje);
+                // leeo lina del prompt
+                std::getline(std::cin, mensaje);
 
-				// envío consulta al servidor
-				if( enviarMensaje(cliente, mensaje) != mensaje.length()){
-					std::cout << "Error: no se envió correctamente el mensaje" << std::endl;
-				}
+                // envío consulta al servidor
+                if (enviarMensaje(cliente, mensaje) != mensaje.length()) {
+                    std::cout << "Error: no se envió correctamente el mensaje" << std::endl;
+                }
 
-			}else if(strncmp(read_buffer,goodbye,sizeof(goodbye)*sizeof(char))==0){
-				break;
-			}
+            } else if (strncmp(read_buffer, goodbye, sizeof(goodbye) * sizeof(char)) == 0) {
+                break;
+            }
         }
 
     }
