@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <iostream>
 #include <getopt.h>
+#include <iterator>
+#include <algorithm>
 
 #include "ClientSocket.h"
 #include "../shared/src/SocketException.h"

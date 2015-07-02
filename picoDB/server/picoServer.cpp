@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <iterator>     // std::ostream_iterator
 #include <getopt.h>
+#include <iterator>
+#include <algorithm>
 
 #include <stdlib.h>
 #include <sys/types.h>
