@@ -420,7 +420,7 @@ void enviarSelectSobreTabla(ClientConnection &client, Person &person, std::strin
 
     enviarMensajeAlCliente(client, string(std::to_string(rows) + " row" + string(rows != 1 ? "s" : "") + " in set (" +
                                           to_string(timediff) + " sec)\n\n"));
-    
+
     std::cout << "select * " << tabla << "\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
     std::to_string(ntohs(client.addr.sin_port)) << "\t\t" << std::endl;
 }
@@ -514,7 +514,7 @@ void insertSobreTabla(ClientConnection client, Person &person, std::string tabla
         "\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
         std::to_string(ntohs(client.addr.sin_port)) << "\t\t" << std::endl;
 
-        enviarMensajeAlCliente(client, personAdded ? "1 row affected\n" : error);
+        enviarMensajeAlCliente(client, personAdded ? "1 row affected\n\n" : error);
     }
     else {
         // informar sobre error en la sentencia
