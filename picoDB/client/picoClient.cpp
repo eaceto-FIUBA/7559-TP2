@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
     try {
         cliente.conectar(serverHost, serverPort);
     } catch (SocketException &e) {
-        std::cout << e.getMensaje() << std::endl;
+        std::cout << "Exception " << e.getMensaje() << std::endl;
         return (0);
     }
 
