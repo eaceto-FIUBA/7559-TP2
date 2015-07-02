@@ -83,8 +83,6 @@ int main(int argc, char *argv[]) {
     std::vector<std::string> tables;
     tables.push_back("person");
 
-    Person person("person");
-
     while (sigint_handler.getGracefulQuit() == 0) {
 
         //clear the socket set
@@ -171,6 +169,7 @@ int main(int argc, char *argv[]) {
                         while(it != tables.end()) {
                             s = tabla.find(*it, 0);
                             if( s != std::string::npos ) {
+                                Person person("person");
                                 enviarSelectSobreTabla(a_client_connection,person,tabla);
                                 found = true;
                                 break;
@@ -193,6 +192,7 @@ int main(int argc, char *argv[]) {
                         while(it != tables.end()) {
                             s = tabla.find(*it, 0);
                             if( s != std::string::npos ) {
+                                Person person("person");
                                 insertSobreTabla(a_client_connection,person,tabla, args);
                                 found = true;
                                 break;
@@ -403,7 +403,16 @@ void insertSobreTabla(ClientConnection client, Person &person,std::string tabla,
     	std::string direccion = args[1];
     	std::string telefono = args[2];
 
-        person.addPerson(nombre,direccion,telefono);
+        bool personAdded = false;
+        std::string error = "";
+        try {
+            personAdded = person.addPerson(nombre,direccion,telefono);
+        } catch (std::string exc) {
+            personAdded = false;
+            std::cerr << "exception on insert: " << exc << std::endl;
+            error = std::string("ERROR: " + exc +  "\n");
+        }
+
 
         // Convert all but the last element to avoid a trailing ","
         std::copy(args.begin(), args.end()-1, std::ostream_iterator<std::string>(argsstr, ","));
@@ -413,5 +422,11 @@ void insertSobreTabla(ClientConnection client, Person &person,std::string tabla,
 
         std::cout << "insert into "<< tabla <<" args("<< std::to_string(args.size()) << "): " << argsstr.str() <<"\t" << inet_ntoa(client.addr.sin_addr) << ":" <<
         std::to_string(ntohs(client.addr.sin_port)) << "\t\t" <<  std::endl;
+
+        enviarMensajeAlCliente(client,personAdded ? "1 row affected\n" : error);
+    }
+    else {
+        // informar sobre error en la sentencia
+        enviarMensajeAlCliente(client,"ERROR: invalid argument count\n");
     }
 }

@@ -28,7 +28,7 @@ private:
 public:
     Person(std::string path);
     ~Person();
-    void addPerson(std::string nombre, std::string direccion, std::string telefono);
+    bool addPerson(std::string nombre, std::string direccion, std::string telefono);
     std::string getPersons();
 
 //    Person(std::string nombre, std::string direccion, std::string telefono);
