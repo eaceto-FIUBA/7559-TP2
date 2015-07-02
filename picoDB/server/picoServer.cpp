@@ -8,6 +8,15 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <cctype>
+#include <algorithm>
+#include <iterator>     // std::ostream_iterator
+
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
 
 #include "ServerSocket.h"
 
@@ -270,7 +279,8 @@ bool enviarPromptAlCliente(ClientConnection client) {
 
 // enviar bienvenida
 bool enviarBienvenidaAlCliente(ClientConnection client) {
-    return enviarMensajeAlCliente(client, "Welcome to picoDB!\n");
+    bool done = enviarMensajeAlCliente(client, "Welcome to picoDB!\n");
+    return done && enviarMensajeAlCliente(client, " type \"exit();\" to quit.\n\n");
 }
 
 bool enviarAdiosAlCliente(ClientConnection client) {
