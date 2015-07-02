@@ -88,6 +88,9 @@ int main(int argc, char *argv[]) {
     std::vector<std::string> tables;
     tables.push_back("person");
 
+    // init person DB
+    Person person("person");
+
     while (sigint_handler.getGracefulQuit() == 0) {
 
         //clear the socket set
@@ -174,7 +177,6 @@ int main(int argc, char *argv[]) {
                         while (it != tables.end()) {
                             s = tabla.find(*it, 0);
                             if (s != std::string::npos) {
-                                Person person("person");
                                 enviarSelectSobreTabla(a_client_connection, person, tabla);
                                 found = true;
                                 break;
@@ -198,7 +200,6 @@ int main(int argc, char *argv[]) {
                         while (it != tables.end()) {
                             s = tabla.find(*it, 0);
                             if (s != std::string::npos) {
-                                Person person("person");
                                 insertSobreTabla(a_client_connection, person, tabla, args);
                                 found = true;
                                 break;
