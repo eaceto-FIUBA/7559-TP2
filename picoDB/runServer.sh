@@ -1,1 +1,1 @@
-./server/bin/picoServer
+./server/bin/picoServer ${1}

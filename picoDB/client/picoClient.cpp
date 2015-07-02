@@ -2,16 +2,23 @@
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
+#include <getopt.h>
 
 #include "ClientSocket.h"
 #include "../shared/src/SocketException.h"
 #include "../shared/inc/SignalHandler.h"
 #include "../shared/inc/SIGINT_Handler.h"
 
+#define kCLINoAargument         0
+#define kCLIRequiredArgument    1
+#define kCLIOptionalArgument    2
 
 using namespace std;
 
-static const unsigned int SIZE_RECIBIR = 10;
+#define DEFAULT_SERVER_PORT          5000
+int     serverPort = DEFAULT_SERVER_PORT;
+std::string serverHost;
+
 static const char *goodbye = "Goodbye!";
 
 int enviarMensaje(ClientSocket &cliente, std::string message) {
@@ -33,16 +40,88 @@ bool is_prompt(std::string read_buffer) {
     }
 }
 
+void printVersion() {
+    cout << "picoDB Client v1.0" << endl;
+    cout << "[87761]\tOpromolla, Giovanni\t\tgiopromolla@gmail.com " << endl;
+    cout << "[84316]\tAceto, Ezequiel Leonardo\t\tezequiel.aceto@gmail.com  " << endl;
+}
+
+void printHelp() {
+    cout << endl;
+    cout << "Usage: picoClient --host <host> --port <port>"  << endl;
+    cout << "Usage: picoClient --t <host> -p <port>"  << endl;
+    cout << endl;
+    cout << "\t <port> is optional. Port 5000 is default port."  << endl;
+    cout << "picoClient --help\t\t\tdisplay help" <<endl;
+    cout << "picoClient --version\t\t\tdisplay version" <<endl;
+    cout << endl;
+}
+
+
+int setupCLI(int argc, char **argv) {
+    const struct option longopts[] =
+            {
+                    {"version",         kCLINoAargument,        NULL, 'v'},
+                    {"help",            kCLINoAargument,        NULL, 'h'},
+                    {"port",            kCLIOptionalArgument,  NULL, 'p'},
+                    {"host",            kCLIRequiredArgument,  NULL, 't'},
+                    {0,0,0,0},
+            };
+
+    int index;
+    int iarg=0;
+
+    //turn off getopt error message
+    opterr=1;
+
+    while(iarg != -1)
+    {
+        iarg = getopt_long(argc, argv, "vhp:t:", longopts, &index);
+
+        switch (iarg) {
+            case 'h':
+                printHelp();
+                return -1;
+
+            case 'v':
+                printVersion();
+                return -1;
+
+            case 'p':
+                if (optarg) {
+                    serverPort = atol(optarg);
+                }
+                if (serverPort < 0) {
+                    printHelp();
+                    return -1;
+                }
+                break;
+
+            case 't':
+                if (optarg) {
+                    serverHost = string(optarg);
+                }
+                break;
+        }
+    }
+
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
 
-    std::cout << "picoDB Client" << std::endl;
+    if (setupCLI(argc, argv)) {
+        return ( 0 );
+    }
+
+    std::cout << "picoDB Client v1.0" << std::endl;
 
     ClientSocket cliente;
 
     int max_sd;
 
     try {
-        cliente.conectar("127.0.0.1", 5000);
+        cliente.conectar(serverHost, serverPort);
     } catch (SocketException &e) {
         std::cout << e.getMensaje() << std::endl;
     }

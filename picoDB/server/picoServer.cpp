@@ -11,6 +11,7 @@
 #include <cctype>
 #include <algorithm>
 #include <iterator>     // std::ostream_iterator
+#include <getopt.h>
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -26,7 +27,13 @@
 
 #define MAX_CLIENTS          10
 #define MAX_PENDING_CONNECTIONS 5
-#define SERVER_PORT          5000
+
+#define DEFAULT_SERVER_PORT          5000
+int     serverPort = DEFAULT_SERVER_PORT;
+
+#define kCLINoAargument         0
+#define kCLIRequiredArgument    1
+#define kCLIOptionalArgument    2
 
 /** Bio
  * http://www.lowtek.com/sockets/select.html
@@ -72,11 +79,77 @@ inline bool empieza_con(std::string const &command, std::string const &prefix);
 
 inline bool termina_con(std::string const &value, std::string const &ending);
 
+void printVersion() {
+    cout << "picoDB Server v1.0" << endl;
+    cout << "[87761]\tOpromolla, Giovanni\t\tgiopromolla@gmail.com " << endl;
+    cout << "[84316]\tAceto, Ezequiel Leonardo\t\tezequiel.aceto@gmail.com  " << endl;
+}
+
+void printHelp() {
+    cout << endl;
+    cout << "Usage: picoServer --port <port>"  << endl;
+    cout << "Usage: picoServer -p <port>"  << endl;
+    cout << endl;
+    cout << "\t <port> is optional. Port 5000 is default port."  << endl;
+    cout << "picoServer --help\t\t\tdisplay help" <<endl;
+    cout << "picoServer --version\t\t\tdisplay version" <<endl;
+    cout << endl;
+}
+
+
+int setupCLI(int argc, char **argv) {
+    const struct option longopts[] =
+            {
+                    {"version",         kCLINoAargument,        NULL, 'v'},
+                    {"help",            kCLINoAargument,        NULL, 'h'},
+                    {"port",            kCLIOptionalArgument,   NULL, 'p'},
+                    {0,0,0,0},
+            };
+
+    int index;
+    int iarg=0;
+
+    //turn off getopt error message
+    opterr=1;
+
+    while(iarg != -1)
+    {
+        iarg = getopt_long(argc, argv, "vhp:", longopts, &index);
+
+        switch (iarg) {
+            case 'h':
+                printHelp();
+                return -1;
+
+            case 'v':
+                printVersion();
+                return -1;
+
+            case 'p':
+                if (optarg) {
+                    serverPort = atol(optarg);
+                }
+                if (serverPort < 0) {
+                    printHelp();
+                    return -1;
+                }
+                break;
+        }
+    }
+
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
-    ServerSocket server(SERVER_PORT, MAX_PENDING_CONNECTIONS);
+
+    if (setupCLI(argc, argv)) {
+        return ( 0 );
+    }
+
+    ServerSocket server(serverPort, MAX_PENDING_CONNECTIONS);
     server.iniciarServicio();
 
-    std::cout << "picoServer: running on " << server.hostname() << ":" << std::to_string(SERVER_PORT) << std::endl;
+    std::cout << "picoServer: running on " << server.hostname() << ":" << std::to_string(serverPort) << std::endl;
 
     // file descriptors
     fd_set readfds;
