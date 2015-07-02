@@ -245,7 +245,7 @@ int main(int argc, char *argv[]) {
                     loggearMensajeRecibido(a_client_connection, rx_cmd);
 
                     if (comandoBienTerminado(rx_cmd) == false) {
-                        enviarMensajeAlCliente(a_client_connection, std::string("Error: Query must end with ';'.\n"));
+                        enviarMensajeAlCliente(a_client_connection, std::string("Error: Query must end with ';'.\n\n"));
                     }
                     else if (esMensajeDeAdios(rx_cmd)) {
                         cerrarConexionConCliente(clients_pool, a_client_connection, i);
@@ -265,12 +265,12 @@ int main(int argc, char *argv[]) {
                                 found = true;
                                 break;
                             }
-                            ++i;
+                            ++it;
                         }
 
                         if (found == false) {
                             enviarMensajeAlCliente(a_client_connection,
-                                                   std::string("Error: Invalid table name: " + tabla + "\n"));
+                                                   std::string("Error: Invalid table name: " + tabla + "\n\n"));
                         }
                     }
                     else if (esInsertSobreTabla(rx_cmd)) {
@@ -288,17 +288,17 @@ int main(int argc, char *argv[]) {
                                 found = true;
                                 break;
                             }
-                            ++i;
+                            ++it;
                         }
 
                         if (found == false) {
                             enviarMensajeAlCliente(a_client_connection,
-                                                   std::string("Error: Invalid table name: " + tabla + "\n"));
+                                                   std::string("Error: Invalid table name: " + tabla + "\n\n"));
                         }
                     }
                     else {
                         enviarMensajeAlCliente(a_client_connection,
-                                               std::string("Error: Invalid command or sintax: " + rx_cmd + "\n"));
+                                               std::string("Error: Invalid command or sintax: " + rx_cmd + "\n\n"));
                     }
                     enviarPromptAlCliente(a_client_connection);
                 }
@@ -427,9 +427,9 @@ void enviarSelectSobreTabla(ClientConnection &client, Person &person, std::strin
 
     if (rows > 0) {
 
-        int maxn = 0;
-        int maxd = 0;
-        int maxt = 0;
+        int maxn = 7;
+        int maxd = 10;
+        int maxt = 9;
 
         for (int i = 0; i < rows; i++) {
             PersonRow pr = persons[i];
