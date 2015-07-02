@@ -1,3 +1,0 @@
-/home/kimi/FIUBA/7559-TP2/picoDB/client/CMakeFiles/picoClient.dir
-/home/kimi/FIUBA/7559-TP2/picoDB/server/CMakeFiles/picoServer.dir
-/home/kimi/FIUBA/7559-TP2/picoDB/shared/CMakeFiles/shared_lib.dir

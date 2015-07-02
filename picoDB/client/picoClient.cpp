@@ -76,6 +76,8 @@ int setupCLI(int argc, char **argv) {
     //turn off getopt error message
     opterr=1;
 
+    serverHost = string("127.0.0.1");
+
     while(iarg != -1)
     {
         iarg = getopt_long(argc, argv, "vhp:t:", longopts, &index);
@@ -126,6 +128,7 @@ int main(int argc, char *argv[]) {
         cliente.conectar(serverHost, serverPort);
     } catch (SocketException &e) {
         std::cout << e.getMensaje() << std::endl;
+        return (0);
     }
 
     // file descriptors

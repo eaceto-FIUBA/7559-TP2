@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/kimi/FIUBA/7559-TP2/picoDB
+CMAKE_SOURCE_DIR = /Users/kimi/FIUBA/7559-TP2/picoDB
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/kimi/FIUBA/7559-TP2/picoDB
+CMAKE_BINARY_DIR = /Users/kimi/FIUBA/7559-TP2/picoDB
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -73,14 +73,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/kimi/FIUBA/7559-TP2/picoDB && $(CMAKE_COMMAND) -E cmake_progress_start /home/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles /home/kimi/FIUBA/7559-TP2/picoDB/server/CMakeFiles/progress.marks
-	cd /home/kimi/FIUBA/7559-TP2/picoDB && $(MAKE) -f CMakeFiles/Makefile2 server/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles 0
+	cd /Users/kimi/FIUBA/7559-TP2/picoDB && $(CMAKE_COMMAND) -E cmake_progress_start /Users/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles /Users/kimi/FIUBA/7559-TP2/picoDB/server/CMakeFiles/progress.marks
+	cd /Users/kimi/FIUBA/7559-TP2/picoDB && $(MAKE) -f CMakeFiles/Makefile2 server/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/kimi/FIUBA/7559-TP2/picoDB/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/kimi/FIUBA/7559-TP2/picoDB && $(MAKE) -f CMakeFiles/Makefile2 server/clean
+	cd /Users/kimi/FIUBA/7559-TP2/picoDB && $(MAKE) -f CMakeFiles/Makefile2 server/clean
 .PHONY : clean
 
 # The main clean target
@@ -89,7 +89,7 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/kimi/FIUBA/7559-TP2/picoDB && $(MAKE) -f CMakeFiles/Makefile2 server/preinstall
+	cd /Users/kimi/FIUBA/7559-TP2/picoDB && $(MAKE) -f CMakeFiles/Makefile2 server/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
